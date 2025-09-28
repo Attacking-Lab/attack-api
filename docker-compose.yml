@@ -1,0 +1,11 @@
+services:
+  attack-api:
+    build: .
+    ports:
+      - 8000:8000
+    environment:
+      - SCOREBOARD_URL=${SCOREBOARD_URL:?Set Scoreboard URL}
+  postgres:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=postgres
