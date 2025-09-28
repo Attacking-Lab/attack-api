@@ -535,6 +535,7 @@ async def get_faust_teams_json(_: Annotated[StrictBaseModel, Query()], conn = De
         await cur.execute("""
             SELECT CONCAT(ai.service_name, '-', ai.flagstore_id), ai.team_id, ai.attack_info
             FROM attack_info ai
+            WHERE ai.round_id < %s and ai.round_id >= %s
             ORDER BY (ai.service_name, ai.team_id)
         """)
         results = await cur.fetchall()
