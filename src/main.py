@@ -159,7 +159,7 @@ async def database_sync_config(conn: AsyncConnection) -> None:
             await cur.execute(
                 "INSERT INTO services (id, name, flagstores) VALUES (%s, %s, %s) "
                 "ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, flagstores = EXCLUDED.flagstores",
-                (service_id, service_data["name"], service_data["flag_stores"])
+                (service_id + 1, service_data["name"], service_data["flag_stores"])
             )
 
         await cur.executemany(
