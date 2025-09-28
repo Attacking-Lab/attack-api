@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 uv run --no-sync src/main.py # setup tables and sync
 
 cd src

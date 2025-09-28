@@ -8,7 +8,9 @@ MAX_CONN = 32
 def get_conn_str():
     host = environ.get("POSTGRES_HOST", "postgres")
     port = environ.get("POSTGRES_PORT", "5432")
-    return f"dbname=postgres user=postgres password=postgres host={host} port={port}"
+    connstr = f"dbname=postgres user=postgres password=postgres host={host} port={port}"
+    print(connstr)
+    return connstr
 
 def init_connection_pool() -> AsyncConnectionPool:
     return AsyncConnectionPool(get_conn_str(), min_size=MIN_CONN, max_size=MAX_CONN, open=False)

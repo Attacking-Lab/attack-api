@@ -496,7 +496,7 @@ async def get_next_round(_: Annotated[NextRoundQuery, Query()], conn = Depends(g
         except:
             return {"error": format_exc()}
 
-@app.get("/api/saarctf2024/teams.json")
+@app.get("/api/saarctf2024/attack.json")
 async def get_saarctf2025_attack_json(_: Annotated[StrictBaseModel, Query()], conn = Depends(get_db_conn)):
     round_id = ctf.current_round
     for rnd in range(max(0, round_id - ctf.validity_period), round_id):
@@ -519,7 +519,7 @@ async def get_saarctf2025_attack_json(_: Annotated[StrictBaseModel, Query()], co
         """, (round_id, round_id - ctf.validity_period))
         results = await cur.fetchall()
 
-        flag_ids = list2dict(results, keep=1)
+        flag_ids = list2dict(results, keep=1, unique=False)
 
         return {"teams": team_ids, "flag_ids": flag_ids}
 
@@ -533,13 +533,13 @@ async def get_faust_teams_json(_: Annotated[StrictBaseModel, Query()], conn = De
         team_ids = [team.id for team in ctf.teams.values()]
 
         await cur.execute("""
-            SELECT ai.service_name, ai.team_id, ai.attack_info
+            SELECT CONCAT(ai.service_name, '-', ai.flagstore_id), ai.team_id, ai.attack_info
             FROM attack_info ai
             ORDER BY (ai.service_name, ai.team_id)
         """)
         results = await cur.fetchall()
 
-        flag_ids = list2dict(results, keep=1)
+        flag_ids = list2dict(results, keep=1, unique=False)
 
         return {"teams": team_ids, "flag_ids": flag_ids}
 
@@ -560,15 +560,18 @@ async def main():
     parser = ArgumentParser()
     parser.add_argument("-d", "--drop", action="store_true", default=False)
     parser.add_argument("-t", "--test", action="store_true", default=False)
+    parser.add_argument("-s", "--skip-sync", action="store_true", default=False)
     args = parser.parse_args()
     conn_pool = init_connection_pool()
     await conn_pool.open()
     async with conn_pool.connection() as conn:
         async with conn.cursor() as cur:
             await create_tables(cur, drop=args.drop)
-        await database_sync_config(conn)
         await conn.commit()
-        ctf = await database_load_config(conn)
+        if not args.skip_sync:
+            await database_sync_config(conn)
+            await conn.commit()
+            ctf = await database_load_config(conn)
         if args.test:
             while 1:
                 await check_update_round()
