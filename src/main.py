@@ -515,7 +515,7 @@ async def get_saarctf2025_attack_json(_: Annotated[StrictBaseModel, Query()], co
             FROM attack_info ai
             JOIN teams t ON ai.team_id = t.id
             WHERE ai.round_id < %s and ai.round_id >= %s
-            ORDER BY (ai.service_name, t.ip, ai.round_id)
+            ORDER BY (ai.service_name, t.ip, ai.round_id, ai.flagstore_id)
         """, (round_id, round_id - ctf.validity_period))
         results = await cur.fetchall()
 
