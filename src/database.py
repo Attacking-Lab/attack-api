@@ -2,8 +2,9 @@ from psycopg import AsyncCursor
 from psycopg_pool import AsyncConnectionPool
 from os import environ
 
-MIN_CONN = 10
-MAX_CONN = 32
+MIN_CONN = 32
+MAX_CONN = 64
+
 
 def get_conn_str():
     host = environ.get("POSTGRES_HOST", "attack-api-db")
@@ -12,8 +13,12 @@ def get_conn_str():
     print(connstr)
     return connstr
 
+
 def init_connection_pool() -> AsyncConnectionPool:
-    return AsyncConnectionPool(get_conn_str(), min_size=MIN_CONN, max_size=MAX_CONN, open=False)
+    return AsyncConnectionPool(
+        get_conn_str(), min_size=MIN_CONN, max_size=MAX_CONN, open=False
+    )
+
 
 async def create_tables(cur: AsyncCursor, drop: bool = False):
     if drop:
