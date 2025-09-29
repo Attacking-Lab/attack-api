@@ -6,7 +6,7 @@ MIN_CONN = 10
 MAX_CONN = 32
 
 def get_conn_str():
-    host = environ.get("POSTGRES_HOST", "postgres")
+    host = environ.get("POSTGRES_HOST", "attack-api-db")
     port = environ.get("POSTGRES_PORT", "5432")
     connstr = f"dbname=postgres user=postgres password=postgres host={host} port={port}"
     print(connstr)
