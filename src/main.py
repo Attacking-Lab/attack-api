@@ -24,6 +24,10 @@ logging.basicConfig(level=WARNING)
 logger.setLevel(environ.get("ATTACKAPI_LOGLEVEL", "INFO"))
 
 SCOREBOARD_URL = environ["SCOREBOARD_URL"]
+CONTROLPANEL_URL = SCOREBOARD_URL+":5000"
+
+CP_TEAMS_API_ENDPOINT = "/api/teams"
+CP_SERVICES_API_ENDPOINT = "/api/services"
 
 CURRENT_API_ENDPOINT = "/api/scoreboard_current.json"
 
@@ -137,25 +141,17 @@ async def database_load_config(conn: AsyncConnection) -> CTFConfig:
 
 
 async def database_sync_config(conn: AsyncConnection) -> None:
-    async with httpx.AsyncClient(base_url=SCOREBOARD_URL) as client:
-        r = await client.get(TEAMS_API_ENDPOINT)
+    async with httpx.AsyncClient(base_url=CONTROLPANEL_URL) as client:
+        r = await client.get(CP_TEAMS_API_ENDPOINT)
         r.raise_for_status()
         api_teams = r.json()
 
-        r = await client.get(CURRENT_SCORE_API_ENDPOINT)
+        r = await client.get(CP_SERVICES_API_ENDPOINT)
         r.raise_for_status()
-        api_scoreboard = r.json()
-
-        r = await client.get(CURRENT_ATTACKINFO_API_ENDPOINT)
-        r.raise_for_status()
-        api_attackinfo = r.json()
-
-        r = await client.get(CURRENT_API_ENDPOINT)
-        r.raise_for_status()
-        api_current = r.json()
+        api_services = r.json()
 
     async with conn.cursor() as cur:
-        for team_id, team in api_teams.items():
+        for team in api_teams:
             await cur.execute(
                 "INSERT INTO teams (id, name, ip, website, affiliation, logo) "
                 "VALUES (%s, %s, %s, %s, %s, %s) "
@@ -163,16 +159,16 @@ async def database_sync_config(conn: AsyncConnection) -> None:
                 "ip = EXCLUDED.ip, website = EXCLUDED.website, "
                 "affiliation = EXCLUDED.affiliation, logo = EXCLUDED.logo",
                 (
-                    int(team_id),
+                    team["id"],
                     team["name"],
                     team["vulnbox"],
-                    team["web"],
-                    team["aff"],
+                    team["website"],
+                    team["affiliation"],
                     team["logo"] or None,
                 ),
             )
 
-        for service_id, service_data in enumerate(api_scoreboard["services"]):
+        for service_id, service_data in enumerate(api_services):
             await cur.execute(
                 "INSERT INTO services (id, name, flagstores) VALUES (%s, %s, %s) "
                 "ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, flagstores = EXCLUDED.flagstores",
@@ -183,8 +179,8 @@ async def database_sync_config(conn: AsyncConnection) -> None:
             "INSERT INTO config (name, value) VALUES (%s, %s) "
             "ON CONFLICT (name) DO UPDATE SET value = EXCLUDED.value",
             [
-                ("flag_regex", api_attackinfo["flag_regex"]),
-                ("validity_period", api_current["validity_period"]),
+                ("flag_regex", "ECSC{[A-Za-z0-9-_]{32}}"),
+                ("validity_period", 5),
             ],
         )
 
