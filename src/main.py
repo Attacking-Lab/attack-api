@@ -2,7 +2,6 @@ from argparse import ArgumentParser
 import asyncio
 from logging import WARNING, getLogger
 from datetime import datetime
-import traceback
 import logging
 from typing import Annotated
 from dotenv import load_dotenv
@@ -611,6 +610,7 @@ async def get_current_round(_: Annotated[StrictBaseModel, Query()]):
 
 @app.get("/api/v1/next_round")
 async def get_next_round(_: Annotated[StrictBaseModel, Query()]):
+    new_round_synced.clear()
     await new_round_synced.wait()
     new_round_synced.clear()
     round_start = datetime.fromtimestamp(ctf.current_round_start).isoformat()
