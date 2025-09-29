@@ -1,15 +1,17 @@
 services:
   attack-api:
     build: .
+    restart: unless-stopped
     ports:
       - 8080:8000
     environment:
       - SCOREBOARD_URL=${SCOREBOARD_URL:?Set Scoreboard URL}
     depends_on:
-      postgres:
+      attack-api-db:
         condition: service_healthy
   attack-api-db:
     image: postgres
+    restart: unless-stopped
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
