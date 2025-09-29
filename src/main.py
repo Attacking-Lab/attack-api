@@ -272,7 +272,7 @@ async def database_sync_round_results(conn: AsyncConnection, round_id: int):
                         "pts_defense = EXCLUDED.pts_defense, pts_sla = EXCLUDED.pts_sla, "
                         "checker_status = EXCLUDED.checker_status, "
                         "flags_lost = EXCLUDED.flags_lost, flags_captured = EXCLUDED.flags_captured",
-                        (round_id, team["team_id"], ctf.services[service_id].name, pts_total,
+                        (round_id, team["team_id"], ctf.services[service_id+1].name, pts_total,
                          service["o"], service["d"], service["s"], service["c"],
                          service["st"], service["cap"])
                     )
