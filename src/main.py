@@ -24,7 +24,7 @@ logging.basicConfig(level=WARNING)
 logger.setLevel(environ.get("ATTACKAPI_LOGLEVEL", "INFO"))
 
 SCOREBOARD_URL = environ["SCOREBOARD_URL"]
-CONTROLPANEL_URL = SCOREBOARD_URL+":5000"
+CONTROLPANEL_URL = environ["CONTROLPANEL_URL"]
 
 CP_TEAMS_API_ENDPOINT = "/api/teams"
 CP_SERVICES_API_ENDPOINT = "/api/services"
@@ -52,7 +52,7 @@ class Team(StrictBaseModel):
     name: str
     ip: str
     website: str | None
-    affiliation: str
+    affiliation: str | None
     logo: str | None
 
 
@@ -118,7 +118,7 @@ async def database_load_config(conn: AsyncConnection) -> CTFConfig:
         )
         for id, name, ip, website, affiliation, logo in await cur.fetchall():
             teams[id] = Team(
-                id=id,
+                id=str(id),
                 name=name,
                 ip=ip,
                 website=website,
@@ -161,7 +161,7 @@ async def database_sync_config(conn: AsyncConnection) -> None:
                 (
                     team["id"],
                     team["name"],
-                    team["vulnbox"],
+                    team["ip"],
                     team["website"],
                     team["affiliation"],
                     team["logo"] or None,
@@ -172,7 +172,7 @@ async def database_sync_config(conn: AsyncConnection) -> None:
             await cur.execute(
                 "INSERT INTO services (id, name, flagstores) VALUES (%s, %s, %s) "
                 "ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, flagstores = EXCLUDED.flagstores",
-                (service_id + 1, service_data["name"], service_data["flag_stores"]),
+                (service_id + 1, service_data["name"], service_data["flagstores"]),
             )
 
         await cur.executemany(
@@ -197,8 +197,9 @@ async def database_sync_next_round():
             r.raise_for_status()
             api_current = r.json()
         new_round_id = api_current["current_tick"]
+        new_round_start = api_current["current_tick_start"]
 
-        if new_round_id == ctf.current_round:
+        if new_round_start is None or new_round_id == ctf.current_round:
             return False
 
         async with conn.cursor() as cur:
