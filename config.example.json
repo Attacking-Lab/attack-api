@@ -1,1 +1,352 @@
-{"services": [{"id": 1, "name": "firewall", "flagstores": 2}, {"id": 2, "name": "gitter", "flagstores": 2}, {"id": 3, "name": "pillarboxd", "flagstores": 3}, {"id": 4, "name": "JitterishDB", "flagstores": 3}, {"id": 5, "name": "heavensent", "flagstores": 2}], "teams": [{"id": 1, "name": "NOP", "ip": "10.42.1.2", "affiliation": "", "website": "", "logo": "60d6afb8124d8265685254565096ed98.png"}, {"id": 2, "name": "Team Albania", "ip": "10.42.2.2", "affiliation": "", "website": "", "logo": "e5e5e92d0e9fdb5f5ec323714e76dcd0.png"}, {"id": 3, "name": "Team Austria", "ip": "10.42.3.2", "affiliation": "", "website": "", "logo": "e31237bad9d0607fd7f0975915c13942.png"}, {"id": 4, "name": "Team Belgium", "ip": "10.42.4.2", "affiliation": "", "website": "", "logo": "af08668a370ee61e9b79ac34a7a25cdd.png"}, {"id": 5, "name": "Team Bulgaria", "ip": "10.42.5.2", "affiliation": "", "website": "", "logo": "5011c4aa458b195fcfc3be738305212d.png"}, {"id": 6, "name": "Team Croatia", "ip": "10.42.6.2", "affiliation": "", "website": "", "logo": "17fdcba3d48707776c5d8e963ded2a27.png"}, {"id": 7, "name": "Team Cyprus", "ip": "10.42.7.2", "affiliation": "", "website": "", "logo": "a023d2cc52116ddeb0d7517eecbc4bc9.png"}, {"id": 8, "name": "Team Czechia", "ip": "10.42.8.2", "affiliation": "", "website": "", "logo": "3c5270be52dc9b2b7db241ae4e6ff035.png"}, {"id": 9, "name": "Team Denmark", "ip": "10.42.9.2", "affiliation": "", "website": "", "logo": "52fc32ba45313e8fd765b75be3f772e2.png"}, {"id": 10, "name": "Team Estonia", "ip": "10.42.10.2", "affiliation": "", "website": "", "logo": "a306fb11e6dc1cfeb73916420d2c1c30.png"}, {"id": 11, "name": "Team Finland", "ip": "10.42.11.2", "affiliation": "", "website": "", "logo": "a0e6a1dc5a7e6af0f9809f9898bd949e.png"}, {"id": 12, "name": "Team France", "ip": "10.42.12.2", "affiliation": "", "website": "", "logo": "0a08f8b70c619e279b3e378abd08dbd2.png"}, {"id": 13, "name": "Team Germany", "ip": "10.42.13.2", "affiliation": "", "website": "", "logo": "508a904af1af776bd727251a19f00433.png"}, {"id": 14, "name": "Team Greece", "ip": "10.42.14.2", "affiliation": "", "website": "", "logo": "9d3469b122016d7aeea3ad1a12aa31b6.png"}, {"id": 15, "name": "Team Hungary", "ip": "10.42.15.2", "affiliation": "", "website": "", "logo": "c99500bf700bc4346d8d582dd62c8d6f.png"}, {"id": 16, "name": "Team Iceland", "ip": "10.42.16.2", "affiliation": "", "website": "", "logo": "0fd8cb566f012e89cd02e79dfe8bbeac.png"}, {"id": 17, "name": "Team Ireland", "ip": "10.42.17.2", "affiliation": "", "website": "", "logo": "1dc7fc23bc469895e40ab71409ad5992.png"}, {"id": 18, "name": "Team Italy", "ip": "10.42.18.2", "affiliation": "", "website": "", "logo": "91065db9724d6a7d02f28b9eaafeaece.png"}, {"id": 19, "name": "Team Latvia", "ip": "10.42.19.2", "affiliation": "", "website": "", "logo": "a8a1fc463b335296f2811952cd7ab5d0.png"}, {"id": 20, "name": "Team Liechtenstein", "ip": "10.42.20.2", "affiliation": "", "website": "", "logo": "e757d638be289cc8b4b7d6292c017e9e.png"}, {"id": 21, "name": "Team Lithuania", "ip": "10.42.21.2", "affiliation": "", "website": "", "logo": "829bd5b41f5cda941d09b0edd32a402d.png"}, {"id": 22, "name": "Team Luxembourg", "ip": "10.42.22.2", "affiliation": "", "website": "", "logo": "3b3c0df2acdeb3a44e8cb24117d9e1cb.png"}, {"id": 23, "name": "Team Netherlands", "ip": "10.42.23.2", "affiliation": "", "website": "", "logo": "56f2fdb6886d76d5d1f8da249323d57d.png"}, {"id": 24, "name": "Team Norway", "ip": "10.42.24.2", "affiliation": "", "website": "", "logo": "b03bf2b0db67ed7a9ebdd1997200f84b.png"}, {"id": 25, "name": "Team Poland", "ip": "10.42.25.2", "affiliation": "", "website": "", "logo": "27f9746276e2d9a3af92e09e22ff6996.png"}, {"id": 26, "name": "Team Portugal", "ip": "10.42.26.2", "affiliation": "", "website": "", "logo": "61a9866fb2775434cdce53d668e2817d.png"}, {"id": 27, "name": "Team Romania", "ip": "10.42.27.2", "affiliation": "", "website": "", "logo": "89ee3163b8c598a16479c01412a1af58.png"}, {"id": 28, "name": "Team Serbia", "ip": "10.42.28.2", "affiliation": "", "website": "", "logo": "b801a4dc77cd74d94b8e7f56406b6c18.png"}, {"id": 29, "name": "Team Slovakia", "ip": "10.42.29.2", "affiliation": "", "website": "", "logo": "2794dfd97afbf83c513dabda25809679.png"}, {"id": 30, "name": "Team Slovenia", "ip": "10.42.30.2", "affiliation": "", "website": "", "logo": "4a65bf295b7ecd83911dcad9071d0761.png"}, {"id": 31, "name": "Team Spain", "ip": "10.42.31.2", "affiliation": "", "website": "", "logo": "2013d980ecdd57bd2aa14c3763d566c2.png"}, {"id": 32, "name": "Team Sweden", "ip": "10.42.32.2", "affiliation": "", "website": "", "logo": "638de6669b28cb7ef25fac23179a7a15.png"}, {"id": 33, "name": "Team Switzerland", "ip": "10.42.33.2", "affiliation": "", "website": "", "logo": "fc630eabd93a8a1588addea4bb345e95.png"}, {"id": 34, "name": "Team Ukraine", "ip": "10.42.34.2", "affiliation": "", "website": "", "logo": "b698c88e218f3f2d6e2a4df3360408c2.png"}, {"id": 35, "name": "Team United Kingdom", "ip": "10.42.35.2", "affiliation": "", "website": "", "logo": "e88ae3e74822f9f116a15bcac48d14b1.png"}, {"id": 36, "name": "Team Australia", "ip": "10.42.36.2", "affiliation": "", "website": "", "logo": "9079f774ac80f43c113b85d11085b04c.png"}, {"id": 37, "name": "Team Canada", "ip": "10.42.37.2", "affiliation": "", "website": "", "logo": "5c9bde8f151ea732cb6b91ea6b678deb.png"}, {"id": 38, "name": "Team Costa Rica", "ip": "10.42.38.2", "affiliation": "", "website": "", "logo": "554976b4448d2e15c8c0b6517d241605.png"}, {"id": 39, "name": "Team Kosovo", "ip": "10.42.39.2", "affiliation": "", "website": "", "logo": "73019a0fdc99780efe350c7c399b2335.png"}, {"id": 40, "name": "Team USA", "ip": "10.42.40.2", "affiliation": "", "website": "", "logo": "4c927144268894dd8773c54a2256b25f.png"}], "flag_regex": "ECSC{[A-Za-z0-9-_]{32}}", "validity_period": 5}
+{
+  "services": [
+    {
+      "id": 1,
+      "name": "APT-Finals-1",
+      "flagstores": 1
+    },
+    {
+      "id": 2,
+      "name": "APT-Finals-2",
+      "flagstores": 1
+    },
+    {
+      "id": 3,
+      "name": "CookingNonna",
+      "flagstores": 1
+    },
+    {
+      "id": 4,
+      "name": "Diese-1",
+      "flagstores": 1
+    },
+    {
+      "id": 5,
+      "name": "Diese-2",
+      "flagstores": 1
+    },
+    {
+      "id": 6,
+      "name": "duogesto",
+      "flagstores": 1
+    },
+    {
+      "id": 7,
+      "name": "fonograph",
+      "flagstores": 1
+    },
+    {
+      "id": 8,
+      "name": "Sanromolo",
+      "flagstores": 1
+    }
+  ],
+  "teams": [
+    {
+      "id": "0",
+      "name": "NOP Team",
+      "ip": "10.42.0.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "1",
+      "name": "Albania",
+      "ip": "10.42.1.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "2",
+      "name": "Australia",
+      "ip": "10.42.2.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "3",
+      "name": "Austria",
+      "ip": "10.42.3.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "4",
+      "name": "Belgium",
+      "ip": "10.42.4.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "5",
+      "name": "Bulgaria",
+      "ip": "10.42.5.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "6",
+      "name": "Canada",
+      "ip": "10.42.6.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "7",
+      "name": "Costa Rica",
+      "ip": "10.42.7.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "8",
+      "name": "Croatia",
+      "ip": "10.42.8.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "9",
+      "name": "Cyprus",
+      "ip": "10.42.9.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "10",
+      "name": "Czech Republic",
+      "ip": "10.42.10.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "11",
+      "name": "Denmark",
+      "ip": "10.42.11.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "12",
+      "name": "Estonia",
+      "ip": "10.42.12.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "13",
+      "name": "Finland",
+      "ip": "10.42.13.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "14",
+      "name": "France",
+      "ip": "10.42.14.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "15",
+      "name": "Germany",
+      "ip": "10.42.15.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "16",
+      "name": "Greece",
+      "ip": "10.42.16.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "17",
+      "name": "Hungary",
+      "ip": "10.42.17.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "18",
+      "name": "Iceland",
+      "ip": "10.42.18.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "19",
+      "name": "Ireland",
+      "ip": "10.42.19.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "20",
+      "name": "Italy",
+      "ip": "10.42.20.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "21",
+      "name": "Kosovo",
+      "ip": "10.42.21.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "22",
+      "name": "Latvia",
+      "ip": "10.42.22.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "23",
+      "name": "Liechtenstein",
+      "ip": "10.42.23.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "24",
+      "name": "Luxembourg",
+      "ip": "10.42.24.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "25",
+      "name": "Netherlands",
+      "ip": "10.42.25.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "26",
+      "name": "Norway",
+      "ip": "10.42.26.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "27",
+      "name": "Poland",
+      "ip": "10.42.27.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "28",
+      "name": "Portugal",
+      "ip": "10.42.28.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "29",
+      "name": "Romania",
+      "ip": "10.42.29.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "30",
+      "name": "Serbia",
+      "ip": "10.42.30.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "31",
+      "name": "Singapore",
+      "ip": "10.42.31.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "32",
+      "name": "Slovakia",
+      "ip": "10.42.32.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "33",
+      "name": "Slovenia",
+      "ip": "10.42.33.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "34",
+      "name": "Spain",
+      "ip": "10.42.34.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "35",
+      "name": "Sweden",
+      "ip": "10.42.35.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "36",
+      "name": "Switzerland",
+      "ip": "10.42.36.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    },
+    {
+      "id": "37",
+      "name": "USA",
+      "ip": "10.42.37.2",
+      "affiliation": "",
+      "website": "",
+      "logo": ""
+    }
+  ],
+  "validity_period": 5,
+  "flag_regex": "ECSC{[A-Za-z0-9-_]{32}}"
+}
