@@ -3,18 +3,21 @@ import asyncio
 from logging import WARNING, getLogger
 from datetime import datetime
 import logging
-from typing import Annotated
+from typing import Annotated, Callable
 from dotenv import load_dotenv
+import functools
+
 import httpx
 from psycopg import AsyncConnection
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, Query
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from database import create_tables, init_connection_pool
 from pydantic import BaseModel, ConfigDict
 from collections import defaultdict
 from os import environ
 from worker_id import *
+
+from database import create_tables, init_connection_pool
 
 load_dotenv()
 
@@ -23,24 +26,20 @@ logging.basicConfig(level=WARNING)
 logger.setLevel(environ.get("ATTACKAPI_LOGLEVEL", "INFO"))
 
 SCOREBOARD_URL = environ["SCOREBOARD_URL"]
-CONTROLPANEL_URL = environ["CONTROLPANEL_URL"]
-
-CP_TEAMS_API_ENDPOINT = "/api/teams"
-CP_SERVICES_API_ENDPOINT = "/api/services"
-
 CURRENT_API_ENDPOINT = "/api/scoreboard_current.json"
-
 TEAMS_API_ENDPOINT = "/api/scoreboard_teams.json"
-
 CURRENT_SCORE_API_ENDPOINT = "/api/scoreboard.json"
 ROUND_SCORE_API_ENDPOINT = "/api/scoreboard_round_{}.json"
-
 CURRENT_ATTACKINFO_API_ENDPOINT = "/api/attack.json"
 ROUND_ATTACKINFO_API_ENDPOINT = "/api/attack_round_{}.json"
 
 new_round_id = -1
 new_round_ready = asyncio.Event()
 new_round_synced = asyncio.Event()
+
+round_synced = set()
+attackinfo_synced = set()
+round_results_synced = set()
 
 class StrictBaseModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -57,21 +56,57 @@ class Team(StrictBaseModel):
 
 class Service(StrictBaseModel):
     id: int
-    flagstores: int
     name: str
+    flagstores: int
 
 
 class CTFConfig(StrictBaseModel):
-    flag_regex: str
     teams: dict[int, Team]
     services: dict[int, Service]
+    flag_regex: str
     validity_period: int
     service_name_map: dict[str, int]
+
+
+class CTFDiskConfig(StrictBaseModel):
+    teams: list[Team]
+    services: list[Service]
+    flag_regex: str
+    validity_period: int
+
+    def finalize(self) -> CTFConfig:
+        teams = {team.id: team for team in self.teams}
+        assert len(teams) == len(self.teams)
+        services = {service.id: service for service in self.services}
+        assert len(services) == len(self.services)
+        service_name_map = {service.name: service.id for service in services.values()}
+        return CTFConfig(teams=teams, services=services,
+                         flag_regex=self.flag_regex,
+                         validity_period=self.validity_period,
+                         service_name_map=service_name_map)
+
+
+class CTFState(StrictBaseModel):
     current_round: int = -1
     current_round_start: int = 0
 
 
 ctf: CTFConfig
+state = CTFState()
+
+def httpx_retry(fn: Callable) -> Callable:
+    @functools.wraps(fn)
+    async def wrapper(*args, **kwargs):
+        while True:
+            try:
+                return await fn(*args, **kwargs)
+            except (httpx.ConnectError, httpx.ConnectTimeout) as e:
+                logger.warning(f"Request timed out: {e.request.url} (retrying)")
+                await asyncio.sleep(1)
+            except httpx.HTTPStatusError as e:
+                logger.warning(f"Bad response ({e.response.status_code}): {e.request.url} (retrying)")
+                await asyncio.sleep(1)
+    return wrapper
 
 
 def list2dict(values: list, keep: int = 1, unique: bool = True):
@@ -117,7 +152,7 @@ async def database_load_config(conn: AsyncConnection) -> CTFConfig:
         )
         for id, name, ip, website, affiliation, logo in await cur.fetchall():
             teams[id] = Team(
-                id=str(id),
+                id=id,
                 name=name,
                 ip=ip,
                 website=website,
@@ -139,18 +174,12 @@ async def database_load_config(conn: AsyncConnection) -> CTFConfig:
     )
 
 
-async def database_sync_config(conn: AsyncConnection) -> None:
-    async with httpx.AsyncClient(base_url=CONTROLPANEL_URL) as client:
-        r = await client.get(CP_TEAMS_API_ENDPOINT)
-        r.raise_for_status()
-        api_teams = r.json()
-
-        r = await client.get(CP_SERVICES_API_ENDPOINT)
-        r.raise_for_status()
-        api_services = r.json()
+async def database_sync_config(conn: AsyncConnection, config_path: str) -> None:
+    with open(config_path) as file:
+        config = CTFDiskConfig.model_validate_json(file.read()).finalize()
 
     async with conn.cursor() as cur:
-        for team in api_teams:
+        for team_id, team in config.teams.items():
             await cur.execute(
                 "INSERT INTO teams (id, name, ip, website, affiliation, logo) "
                 "VALUES (%s, %s, %s, %s, %s, %s) "
@@ -158,33 +187,33 @@ async def database_sync_config(conn: AsyncConnection) -> None:
                 "ip = EXCLUDED.ip, website = EXCLUDED.website, "
                 "affiliation = EXCLUDED.affiliation, logo = EXCLUDED.logo",
                 (
-                    team["id"],
-                    team["name"],
-                    team["ip"],
-                    team["website"],
-                    team["affiliation"],
-                    team["logo"] or None,
+                    team_id,
+                    team.name,
+                    team.ip,
+                    team.website,
+                    team.affiliation,
+                    team.logo or None,
                 ),
             )
 
-        for service_id, service_data in enumerate(api_services):
+        for service_id, service in config.services.items():
             await cur.execute(
                 "INSERT INTO services (id, name, flagstores) VALUES (%s, %s, %s) "
                 "ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, flagstores = EXCLUDED.flagstores",
-                (service_id + 1, service_data["name"], service_data["flagstores"]),
+                (service_id, service.name, service.flagstores),
             )
 
         await cur.executemany(
             "INSERT INTO config (name, value) VALUES (%s, %s) "
             "ON CONFLICT (name) DO UPDATE SET value = EXCLUDED.value",
             [
-                ("flag_regex", "ECSC{[A-Za-z0-9-_]{32}}"),
-                ("validity_period", 5),
+                ("flag_regex", config.flag_regex),
+                ("validity_period", config.validity_period),
             ],
         )
 
 
-round_synced = set()
+@httpx_retry
 async def database_sync_next_round():
     global round_synced
 
@@ -198,7 +227,7 @@ async def database_sync_next_round():
         new_round_id = api_current["current_tick"]
         new_round_start = api_current["current_tick_start"]
 
-        if new_round_start is None or new_round_id == ctf.current_round:
+        if new_round_start is None or new_round_id == state.current_round:
             return False
 
         async with conn.cursor() as cur:
@@ -233,7 +262,7 @@ async def database_sync_next_round():
         return True
 
 
-attackinfo_synced = set()
+@httpx_retry
 async def database_sync_round_attackinfo(conn: AsyncConnection, round_id: int):
     global attackinfo_synced
 
@@ -293,7 +322,7 @@ async def database_sync_round_attackinfo(conn: AsyncConnection, round_id: int):
     return True
 
 
-round_results_synced = set()
+@httpx_retry
 async def database_sync_round_results(conn: AsyncConnection, round_id: int):
     global round_results_synced
 
@@ -395,8 +424,8 @@ async def database_query_new_round() -> None:
                         (new_round_id,),
                     )
                     round_start, = await cur.fetchone()
-            ctf.current_round = new_round_id
-            ctf.current_round_start = round_start
+            state.current_round = new_round_id
+            state.current_round_start = round_start
             logger.info(f"Completed syncing new round {new_round_id}")
             new_round_synced.set()
         except:
@@ -416,9 +445,6 @@ async def lifespan(app: FastAPI):
     await database_sync_next_round()
     scheduler = AsyncIOScheduler()
     await database_sync_next_round()
-    #logger.info("Waiting for first round to become available")
-    #while not await database_sync_next_round()
-    #    await asyncio.sleep(1)
     if environ["APP_WORKER_ID"] == "1":
         scheduler.add_job(database_sync_next_round, "interval", seconds=1)
     scheduler.add_job(database_listen_new_round)
@@ -492,7 +518,7 @@ class ScoreQuery(StrictBaseModel):
 
 @app.get("/api/v1/score")
 async def get_score(req: Annotated[ScoreQuery, Query()], conn=Depends(get_db_conn)):
-    round_id = req.round or (ctf.current_round - 1)
+    round_id = req.round or (state.current_round - 1)
     if not await database_sync_round_results(conn, round_id):
         return {}
     async with conn.cursor() as cur:
@@ -558,7 +584,7 @@ class AttackInfoQuery(StrictBaseModel):
 async def get_attack_info(
     req: Annotated[AttackInfoQuery, Query()], conn=Depends(get_db_conn)
 ):
-    round_id = req.round or (ctf.current_round - 1)
+    round_id = req.round or (state.current_round - 1)
     if not await database_sync_round_attackinfo(conn, round_id):
         return {}
     async with conn.cursor() as cur:
@@ -601,8 +627,8 @@ async def get_attack_info(
 
 @app.get("/api/v1/current_round")
 async def get_current_round(_: Annotated[StrictBaseModel, Query()]):
-    round_start = datetime.fromtimestamp(ctf.current_round_start).isoformat()
-    return {"round": ctf.current_round, "time": round_start}
+    round_start = datetime.fromtimestamp(state.current_round_start).isoformat()
+    return {"round": state.current_round, "time": round_start}
 
 
 @app.get("/api/v1/next_round")
@@ -610,15 +636,15 @@ async def get_next_round(_: Annotated[StrictBaseModel, Query()]):
     new_round_synced.clear()
     await new_round_synced.wait()
     new_round_synced.clear()
-    round_start = datetime.fromtimestamp(ctf.current_round_start).isoformat()
-    return {"round": ctf.current_round, "time": round_start}
+    round_start = datetime.fromtimestamp(state.current_round_start).isoformat()
+    return {"round": state.current_round, "time": round_start}
 
 
 @app.get("/api/saarctf2024/attack.json")
 async def get_saarctf2025_attack_json(
     _: Annotated[StrictBaseModel, Query()], conn=Depends(get_db_conn)
 ):
-    round_id = ctf.current_round
+    round_id = state.current_round
     for rnd in range(max(0, round_id - ctf.validity_period), round_id):
         await database_sync_round_attackinfo(conn, rnd)
 
@@ -649,7 +675,7 @@ async def get_saarctf2025_attack_json(
 async def get_faust_teams_json(
     _: Annotated[StrictBaseModel, Query()], conn=Depends(get_db_conn)
 ):
-    round_id = ctf.current_round
+    round_id = state.current_round
     for rnd in range(max(0, round_id - ctf.validity_period), round_id):
         await database_sync_round_attackinfo(conn, rnd)
 
@@ -673,26 +699,10 @@ async def get_faust_teams_json(
         return {"teams": team_ids, "flag_ids": flag_ids}
 
 
-@app.post("/reset_cache", include_in_schema=False)
-async def post_reset(_: Annotated[StrictBaseModel, Query()], conn=Depends(get_db_conn)):
-    global ctf
-    async with conn.transaction():
-        async with conn.cursor() as cur:
-            await cur.execute(
-                "LOCK TABLE attack_info, services, teams, rounds, config IN ACCESS EXCLUSIVE MODE"
-            )
-            await cur.execute(
-                "TRUNCATE TABLE attack_info, services, teams, rounds, config CASCADE"
-            )
-        await database_sync_config(conn)
-        await conn.commit()
-        ctf = await database_load_config(conn)
-    return {"status": "ok"}
-
-
 async def main():
     global ctf, conn_pool
     parser = ArgumentParser()
+    parser.add_argument("-c", "--config", required=True)
     parser.add_argument("-d", "--drop", action="store_true", default=False)
     args = parser.parse_args()
     conn_pool = init_connection_pool()
@@ -701,7 +711,7 @@ async def main():
         async with conn.cursor() as cur:
             await create_tables(cur, drop=args.drop)
         await conn.commit()
-        await database_sync_config(conn)
+        await database_sync_config(conn, args.config)
         await conn.commit()
     await conn_pool.close()
 

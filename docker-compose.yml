@@ -5,8 +5,9 @@ services:
     ports:
       - 8080:8000
     environment:
-      - SCOREBOARD_URL=${SCOREBOARD_URL:?Set Scoreboard URL}
-      - CONTROLPANEL_URL=${CONTROLPANEL_URL:?Set Controlpanel URL}
+      - SCOREBOARD_URL=${SCOREBOARD_URL:?Set scoreboard url}
+    volumes:
+      - ./config.json:/config.json:ro
     depends_on:
       attack-api-db:
         condition: service_healthy
