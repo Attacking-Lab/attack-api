@@ -2,7 +2,7 @@
 
 Caching API server for reducing gameserver load and network traffic. 
 
-Compatible with the ECSC 2025 gameserver.
+Developed for the ECSC 2025 gameserver.
 
 <details class=simple><summary><code>/api/v1/services</code> : Fine-grained service info</summary>
 This endpoint returns service information, by default for all services.
@@ -17,7 +17,7 @@ Example API usage:
 curl http://10.42.251.2:8080/api/v1/services
 ```
 
-```json
+```
 {
     # service id : service info
     "0": {
@@ -34,7 +34,7 @@ curl http://10.42.251.2:8080/api/v1/services
 curl http://10.42.251.2:8080/api/v1/services?service=fooserv
 ```
 
-```json
+```
 {
     "name": "fooserv",
     "flagstores": 2
@@ -56,7 +56,7 @@ Example API usage:
 curl http://10.42.251.2:8080/api/v1/teams
 ```
 
-```json
+```
 {
     ..,
     # team id : team info
@@ -75,7 +75,7 @@ curl http://10.42.251.2:8080/api/v1/teams
 curl http://10.42.251.2:8080/api/v1/teams?team=2
 ```
 
-```json
+```
 {
     "name": "Team Europe",
     "affiliation": "Team Europe",
@@ -99,7 +99,7 @@ Example API usage:
 curl http://10.42.251.2:8080/api/v1/score
 ```
 
-```json
+```
 { # for current round id
     # team id : team info
     "12": {
@@ -127,7 +127,7 @@ curl http://10.42.251.2:8080/api/v1/score
 curl http://10.42.251.2:8080/api/v1/score?team=12&service=fooserv
 ```
 
-```json
+```
 {
     "checker": "SUCCESS",
     "total": 632.7,
@@ -156,7 +156,7 @@ Example API usage:
 curl http://10.42.251.2:8080/api/v1/attack_info
 ```
 
-```json
+```
 {
     # latest round with attack info : round info
     "123": {
@@ -181,7 +181,7 @@ curl http://10.42.251.2:8080/api/v1/attack_info
 curl http://10.42.251.2:8080/api/v1/attack_info?service=fooserv
 ```
 
-```json
+```
 {
     "123": {
         "12": {
@@ -206,7 +206,7 @@ Example API usage:
 curl http://10.42.251.2:8080/api/v1/current_round
 ```
 
-```json
+```
 {
     "round": 4,
     "time": "2025-09-15T13:58:21"
@@ -226,7 +226,7 @@ Example API usage:
 curl http://10.42.251.2:8080/api/v1/next_round
 ```
 
-```json
+```
 {
     "round": 5,
     "time": "2025-09-15T13:59:00"
@@ -244,7 +244,7 @@ Example API usage:
 curl http://10.42.251.2:8080/api/faustctf2024/teams.json
 ```
 
-```json
+```
 {
     "teams": [
         # team ids
@@ -275,7 +275,7 @@ Example API usage:
 curl http://10.42.251.2:8080/api/saarctf2024/attack.json
 ```
 
-```json
+```
 {
     "teams": [
         # team infos
